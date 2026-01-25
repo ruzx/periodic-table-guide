@@ -18,7 +18,13 @@
     <!-- Top Bar -->
     <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-10 bg-slate-900/90 backdrop-blur-sm border-b border-slate-800">
         <div class="font-black text-xl tracking-tighter"><i class="fas fa-atom text-teal-400 mr-2"></i>CHEM<span class="text-slate-500">MASTER</span></div>
-        <div class="font-bold bg-slate-800 px-4 py-1 rounded-full border border-slate-700" id="score-badge">Score: 0</div>
+        <div class="flex items-center gap-4">
+            <!-- Audio Toggle Icon -->
+            <button id="mute-btn" onclick="toggleMute()" class="text-slate-500 hover:text-white transition-colors">
+                <i class="fas fa-volume-up text-xl"></i>
+            </button>
+            <div class="font-bold bg-slate-800 px-4 py-1 rounded-full border border-slate-700" id="score-badge">Score: 0</div>
+        </div>
     </div>
 
     <!-- MAIN GAME CONTAINER -->
@@ -27,7 +33,7 @@
         <!-- SCREEN 1: START MENU -->
         <div id="start-screen" class="bg-slate-800 border border-slate-700 rounded-2xl p-8 md:p-12 shadow-2xl text-center">
             <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">Chemistry Challenge</h1>
-            <h2 class="text-xl text-teal-400 font-bold mb-6">Advanced Review</h2>
+            <h2 class="text-xl text-teal-400 font-bold mb-6">Sound Effects Enabled 🔊</h2>
             <p class="text-lg text-slate-400 mb-8">Test your knowledge on Atomic Structure, The Periodic Table, and Chemical Bonding.</p>
             
             <button onclick="startGame()" class="bg-teal-500 hover:bg-teal-600 text-slate-900 text-xl font-bold py-4 px-12 rounded-xl shadow-[0_4px_0_rgb(13,148,136)] active:shadow-none active:translate-y-[4px] transition-all w-full md:w-auto">
@@ -75,68 +81,46 @@
     </main>
 
     <script>
-        // --- QUIZ DATA (Autonomous / Standalone) ---
-        const questions = [
-            { 
-                q: "In the modern model of the atom, what constitutes the vast majority of the atom's volume?", 
-                topic: "Atomic Theory",
-                options: ["The Nucleus", "Empty Space", "Protons", "Electron Shells"], 
-                correct: 1 
-            },
-            { 
-                q: "What is the maximum number of electrons that the M-shell (the 3rd shell) can hold?", 
-                topic: "Electron Configuration",
-                options: ["8", "18", "32", "2"], 
-                correct: 1 
-            },
-            { 
-                q: "Why do Alkali metals (Group 1) become MORE reactive as you move down the group?", 
-                topic: "Periodic Trends",
-                options: ["They have more protons", "They are heavier", "The valence electron is held less tightly", "They turn into gas"], 
-                correct: 2 
-            },
-            { 
-                q: "Isotopes (such as Carbon-12 and Carbon-14) are atoms of the same element that differ in their number of:", 
-                topic: "Isotopes",
-                options: ["Electrons", "Neutrons", "Shells", "Quarks"], 
-                correct: 1 
-            },
-            { 
-                q: "When Magnesium (Mg) burns in Oxygen (O2) to form Magnesium Oxide, what type of bond is created?", 
-                topic: "Chemical Bonding",
-                options: ["Ionic Bond", "Covalent Bond", "Metallic Bond", "Hydrogen Bond"], 
-                correct: 0 
-            },
-            { 
-                q: "Which group of elements is known as 'Salt Formers' and has 7 valence electrons?", 
-                topic: "Element Families",
-                options: ["Alkali Metals", "Noble Gases", "Halogens", "Transition Metals"], 
-                correct: 2 
-            },
-            { 
-                q: "Why is a water molecule (H2O) considered a Dipole (Polar)?", 
-                topic: "Molecular Structure",
-                options: ["It is liquid at room temperature", "Oxygen pulls electrons stronger than Hydrogen", "It contains two Hydrogens", "It conducts electricity"], 
-                correct: 1 
-            },
-            { 
-                q: "In the Periodic Table, what do all elements in the same PERIOD (horizontal row) have in common?", 
-                topic: "The Periodic Table",
-                options: ["Same number of valence electrons", "Same atomic mass", "Same number of electron shells", "Same reactivity"], 
-                correct: 2 
-            },
-            { 
-                q: "Which Noble Gas is commonly used in lightbulbs because it is unreactive and prevents the filament from burning?", 
-                topic: "Noble Gases",
-                options: ["Hydrogen", "Argon", "Oxygen", "Chlorine"], 
-                correct: 1 
-            },
-            { 
-                q: "Which formula calculates the Mass Number of an atom?", 
-                topic: "Atomic Mass",
-                options: ["Protons + Electrons", "Neutrons + Electrons", "Protons + Neutrons", "Atomic Number x 2"], 
-                correct: 2 
+        // --- SOUND EFFECTS ENGINE ---
+        const sfx = {
+            correct: new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'),
+            wrong: new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'),
+            tick: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+            win: new Audio('https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3')
+        };
+
+        // Pre-set volumes so they aren't too loud
+        sfx.correct.volume = 0.5;
+        sfx.wrong.volume = 0.5;
+        sfx.tick.volume = 0.3;
+        sfx.win.volume = 0.6;
+
+        let isMuted = false;
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const icon = document.querySelector('#mute-btn i');
+            if (isMuted) {
+                icon.className = "fas fa-volume-mute text-red-400 text-xl";
+                Object.values(sfx).forEach(sound => sound.muted = true);
+            } else {
+                icon.className = "fas fa-volume-up text-xl";
+                Object.values(sfx).forEach(sound => sound.muted = false);
             }
+        }
+
+        // --- QUIZ DATA ---
+        const questions = [
+            { q: "In the modern model of the atom, what constitutes the vast majority of the atom's volume?", topic: "Atomic Theory", options: ["The Nucleus", "Empty Space", "Protons", "Electron Shells"], correct: 1 },
+            { q: "What is the maximum number of electrons that the M-shell (the 3rd shell) can hold?", topic: "Electron Configuration", options: ["8", "18", "32", "2"], correct: 1 },
+            { q: "Why do Alkali metals (Group 1) become MORE reactive as you move down the group?", topic: "Periodic Trends", options: ["They have more protons", "They are heavier", "The valence electron is held less tightly", "They turn into gas"], correct: 2 },
+            { q: "Isotopes (such as Carbon-12 and Carbon-14) are atoms of the same element that differ in their number of:", topic: "Isotopes", options: ["Electrons", "Neutrons", "Shells", "Quarks"], correct: 1 },
+            { q: "When Magnesium (Mg) burns in Oxygen (O2) to form Magnesium Oxide, what type of bond is created?", topic: "Chemical Bonding", options: ["Ionic Bond", "Covalent Bond", "Metallic Bond", "Hydrogen Bond"], correct: 0 },
+            { q: "Which group of elements is known as 'Salt Formers' and has 7 valence electrons?", topic: "Element Families", options: ["Alkali Metals", "Noble Gases", "Halogens", "Transition Metals"], correct: 2 },
+            { q: "Why is a water molecule (H2O) considered a Dipole (Polar)?", topic: "Molecular Structure", options: ["It is liquid at room temperature", "Oxygen pulls electrons stronger than Hydrogen", "It contains two Hydrogens", "It conducts electricity"], correct: 1 },
+            { q: "In the Periodic Table, what do all elements in the same PERIOD (horizontal row) have in common?", topic: "The Periodic Table", options: ["Same number of valence electrons", "Same atomic mass", "Same number of electron shells", "Same reactivity"], correct: 2 },
+            { q: "Which Noble Gas is commonly used in lightbulbs because it is unreactive and prevents the filament from burning?", topic: "Noble Gases", options: ["Hydrogen", "Argon", "Oxygen", "Chlorine"], correct: 1 },
+            { q: "Which formula calculates the Mass Number of an atom?", topic: "Atomic Mass", options: ["Protons + Electrons", "Neutrons + Electrons", "Protons + Neutrons", "Atomic Number x 2"], correct: 2 }
         ];
 
         // --- STYLING ---
@@ -155,7 +139,6 @@
         let timeLeft = 20; 
         let canAnswer = false;
 
-        // --- DOM ELEMENTS ---
         const startScreen = document.getElementById('start-screen');
         const gameScreen = document.getElementById('game-screen');
         const resultScreen = document.getElementById('result-screen');
@@ -163,6 +146,9 @@
         const optionsDiv = document.getElementById('options-container');
 
         function startGame() {
+            // Unlocks audio for mobile/safari browsers
+            sfx.tick.play().then(() => sfx.tick.pause()); 
+            
             startScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
             loadQuestion();
@@ -195,9 +181,12 @@
                 const percent = (timeLeft / 20) * 100;
                 timerBar.style.width = `${percent}%`;
                 
-                if(timeLeft <= 5) {
+                // PLAY TICKING SOUND for the last 5 seconds
+                if(timeLeft <= 5 && timeLeft > 0) {
                     timerBar.classList.remove('bg-teal-500');
                     timerBar.classList.add('bg-red-500');
+                    sfx.tick.currentTime = 0; // Reset audio to start
+                    sfx.tick.play();
                 }
 
                 if(timeLeft <= 0) {
@@ -221,6 +210,10 @@
             statusBar.style.visibility = 'visible';
 
             if(selectedIdx === q.correct) {
+                // PLAY SUCCESS SOUND
+                sfx.correct.currentTime = 0;
+                sfx.correct.play();
+
                 score++;
                 document.getElementById('score-badge').innerText = `Score: ${score}`;
                 btnElement.classList.remove('opacity-40');
@@ -228,6 +221,10 @@
                 feedbackTxt.textContent = "CORRECT!";
                 feedbackTxt.className = "text-2xl font-black text-teal-400 animate-pulse uppercase tracking-widest";
             } else {
+                // PLAY ERROR SOUND
+                sfx.wrong.currentTime = 0;
+                sfx.wrong.play();
+
                 btnElement.classList.remove('opacity-40');
                 btnElement.classList.add('opacity-50'); 
                 correctBtn.classList.remove('opacity-40');
@@ -236,15 +233,19 @@
                 feedbackTxt.className = "text-2xl font-black text-red-400 uppercase tracking-widest";
             }
 
-            setTimeout(nextQuestion, 2000); // 2 second auto-advance
+            setTimeout(nextQuestion, 2000);
         }
 
         function timeUp() {
             if(!canAnswer) return;
             canAnswer = false;
             clearInterval(timer);
-            const q = questions[currentQ];
             
+            // PLAY ERROR SOUND (Time's Up)
+            sfx.wrong.currentTime = 0;
+            sfx.wrong.play();
+
+            const q = questions[currentQ];
             Array.from(optionsDiv.children).forEach(b => b.classList.add('opacity-40'));
             optionsDiv.children[q.correct].classList.remove('opacity-40');
             optionsDiv.children[q.correct].classList.add('ring-4', 'ring-teal-400');
@@ -268,6 +269,10 @@
         }
 
         function endGame() {
+            // PLAY VICTORY SOUND
+            sfx.win.currentTime = 0;
+            sfx.win.play();
+
             gameScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
             document.getElementById('final-score').textContent = score;
