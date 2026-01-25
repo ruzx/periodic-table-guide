@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metallurgy & Money: Pro Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:wght@700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; background-color: #0c0a09; color: white; overflow: hidden; }
+        .serif { font-family: 'Playfair Display', serif; }
+        
+        /* Стилизация монет для анимации дождя */
+        .coin-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 100;
+            animation: fall-and-spin 2s forwards linear;
+            font-size: 24px;
+            color: #fbbf24;
+        }
+
+        @keyframes fall-and-spin {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Эффект тряски при ошибке */
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .metal-svg { filter: drop-shadow(0 0 15px rgba(20, 184, 166, 0.4)); }
+        .metal-svg path, .metal-svg circle { transition: all 0.3s; }
+        
+        .answer-btn { transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .answer-btn:hover { transform: scale(1.02); background-color: rgba(68, 64, 60, 0.8); }
+        .answer-btn:active { transform: scale(0.95); }
+
+        /* Полоса прогресса со свечением */
+        #progress-bar { box-shadow: 0 0 10px #14b8a6; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Navbar -->
+    <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-50 bg-stone-900/90 backdrop-blur-md border-b border-stone-800">
+        <div class="font-black text-xl serif text-teal-500 flex items-center gap-2">
+            <i class="fas fa-flask"></i>
+            <span class="tracking-tight uppercase text-sm font-sans not-italic text-stone-400">Metal<span class="text-teal-500">Quiz</span></span>
+        </div>
+        <div class="flex items-center gap-6">
+            <div id="multiplier" class="text-xs font-bold text-amber-500 hidden animate-bounce">Speed Bonus! x2</div>
+            <div id="score-badge" class="font-black bg-teal-500/10 px-6 py-2 rounded-full border border-teal-500/20 text-teal-500">0</div>
+        </div>
+    </div>
+
+    <main id="main-container" class="w-full max-w-2xl mt-12 transition-all duration-500">
+        
+        <!-- START SCREEN -->
+        <div id="start-screen" class="bg-stone-800/50 border border-stone-700 backdrop-blur-sm rounded-[3rem] p-10 shadow-2xl text-center">
+            <div class="mb-8 cursor-pointer hover:rotate-12 transition-transform duration-500" onclick="playAudio('coin')">
+                <i class="fas fa-coins text-7xl text-amber-500 filter drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]"></i>
+            </div>
+            <h1 class="text-5xl font-black mb-4 serif tracking-tight">Metallurgy & Money</h1>
+            <p class="text-stone-400 mb-10 text-lg leading-relaxed">Study the atomic structure of coins. <br><span class="text-teal-500/60 font-mono text-xs uppercase tracking-widest">Audio Required for Full Immersion</span></p>
+            
+            <button onclick="startGame()" class="group relative bg-teal-500 hover:bg-teal-400 text-stone-900 text-xl font-black py-6 px-16 rounded-3xl shadow-[0_8px_0_rgb(13,148,136)] active:shadow-none active:translate-y-2 transition-all w-full">
+                <i class="fas fa-play mr-2"></i> INITIALIZE
+            </button>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="hidden">
+            <div class="bg-stone-800/80 border border-stone-700 rounded-[3rem] p-6 md:p-10 shadow-2xl relative overflow-hidden">
+                
+                <!-- Visual Box -->
+                <div class="mb-8 h-64 flex items-center justify-center bg-black/40 rounded-[2rem] border border-stone-700/50 relative">
+                    <div id="visual-canvas" class="w-full h-full flex items-center justify-center"></div>
+                    <div class="absolute top-4 right-6 text-teal-500/30 font-mono text-[10px]">ATOM_SCAN_V.2.0</div>
+                </div>
+
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 text-center serif italic leading-snug min-h-[4rem]">Scanning archive...</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container"></div>
+                
+                <div class="mt-10 flex flex-col gap-2">
+                    <div class="flex justify-between text-[10px] font-black uppercase text-stone-500 tracking-widest">
+                        <span id="q-counter">Sample 01</span>
+                        <span id="timer-text">15.00s</span>
+                    </div>
+                    <div class="bg-stone-900 h-2 rounded-full overflow-hidden p-[1px]">
+                        <div id="progress-bar" class="h-full bg-teal-500 rounded-full w-full transition-all duration-100 ease-linear"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="result-screen" class="hidden bg-stone-800 border border-stone-700 rounded-[3rem] p-12 text-center shadow-2xl">
+            <div class="text-7xl mb-6">🏛️</div>
+            <h2 class="text-4xl font-black mb-2 serif text-amber-500">Analysis Finalized</h2>
+            <div class="text-6xl font-black my-8" id="final-score">0</div>
+            <button onclick="location.reload()" class="bg-stone-700 hover:bg-stone-600 text-white font-black py-5 px-12 rounded-2xl transition-all uppercase tracking-widest w-full">Re-run Experiment</button>
+        </div>
+    </main>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        const audioUrls = {
+            coin: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', // Звон монет
+            wrong: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3', // Металлический удар
+            hover: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3', // Клик
+            win: 'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3'   // Фанфары
+        };
+
+        const sounds = {};
+        Object.entries(audioUrls).forEach(([key, url]) => {
+            sounds[key] = new Audio(url);
+            sounds[key].volume = 0.5;
+        });
+
+        function playAudio(key) {
+            if (sounds[key]) {
+                sounds[key].currentTime = 0;
+                sounds[key].play().catch(() => {}); // Игнорируем ошибки автоплея
+            }
+        }
+
+        // --- SCHEMATICS ---
+        const schemas = {
+            electrum: `<svg viewBox="0 0 100 100" class="w-44 h-44 metal-svg"><circle cx="50" cy="50" r="40" class="fill-teal" /><circle cx="40" cy="45" r="3" fill="#fbbf24"/><circle cx="60" cy="55" r="4" fill="#fbbf24"/><text x="45" y="35" fill="#14b8a6" font-size="6" font-weight="bold">Au+Ag</text></svg>`,
+            oxidation: `<svg viewBox="0 0 100 100" class="w-44 h-44 metal-svg"><circle cx="50" cy="50" r="40" /><path d="M20 50 Q 50 30 80 50" stroke="#10b981" stroke-width="8" stroke-opacity="0.4"/><text x="35" y="55" fill="#10b981" font-size="8" font-weight="bold">PATINA</text></svg>`,
+            silver: `<svg viewBox="0 0 100 100" class="w-44 h-44 metal-svg"><circle cx="50" cy="50" r="40" stroke="#444"/><path d="M30 30 L70 70 M70 30 L30 70" stroke="#000" stroke-width="2"/><text x="42" y="53" fill="#666" font-size="10" font-weight="bold">Ag2S</text></svg>`,
+            cupronickel: `<svg viewBox="0 0 100 100" class="w-44 h-44 metal-svg"><circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="20" stroke-dasharray="2 2"/><text x="30" y="45" fill="#14b8a6" font-size="8">75% Cu</text><text x="55" y="65" fill="#fbbf24" font-size="8">25% Ni</text></svg>`
+        };
+
+        const questions = [
+            { q: "Lydian Electrum coins were a natural alloy. What is the chemical combination?", schema: "electrum", options: ["Gold & Silver", "Copper & Tin", "Iron & Lead", "Gold & Platinum"], correct: 0 },
+            { q: "Bronze coins turn green due to the formation of which compound?", schema: "oxidation", options: ["Rust", "Copper Carbonate", "Zinc Oxide", "Silver Sulfide"], correct: 1 },
+            { q: "What gas in the air causes silver coins to tarnish and turn black?", schema: "silver", options: ["Oxygen", "Nitrogen", "Hydrogen Sulfide", "Carbon Dioxide"], correct: 2 },
+            { q: "Modern US Quarters are Cupronickel. What is the core metal inside?", schema: "cupronickel", options: ["Pure Nickel", "Zinc", "Pure Copper", "Aluminum"], correct: 2 }
+        ];
+
+        // --- GAME LOGIC ---
+        let currentQ = 0, score = 0, timer, timeLeft = 15;
+
+        function spawnCoins() {
+            for(let i=0; i<15; i++) {
+                setTimeout(() => {
+                    const coin = document.createElement('i');
+                    coin.className = 'fas fa-circle coin-particle';
+                    coin.style.left = Math.random() * 100 + 'vw';
+                    coin.style.animationDuration = (Math.random() * 1 + 1) + 's';
+                    document.body.appendChild(coin);
+                    setTimeout(() => coin.remove(), 2000);
+                }, i * 100);
+            }
+        }
+
+        function startGame() {
+            playAudio('coin');
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 15;
+            const q = questions[currentQ];
+            
+            document.getElementById('q-counter').innerText = `Sample ${currentQ + 1}`;
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('visual-canvas').innerHTML = schemas[q.schema] || schemas.electrum;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.options.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = `answer-btn bg-stone-700/40 border border-stone-700 text-white p-5 rounded-3xl text-left font-bold flex items-center gap-4`;
+                b.innerHTML = `<span class="text-teal-500 font-mono text-[10px]">SCAN_${i+1}</span> ${opt}`;
+                b.onmouseover = () => playAudio('hover');
+                b.onclick = () => check(i, b);
+                container.appendChild(b);
+            });
+
+            timer = setInterval(() => {
+                timeLeft -= 0.05;
+                document.getElementById('timer-text').innerText = Math.max(0, timeLeft).toFixed(2) + "s";
+                document.getElementById('progress-bar').style.width = (timeLeft / 15 * 100) + "%";
+                if (timeLeft <= 0) check(-1);
+            }, 50);
+        }
+
+        function check(idx, btn) {
+            clearInterval(timer);
+            const q = questions[currentQ];
+            const container = document.getElementById('main-container');
+
+            if (idx === q.correct) {
+                playAudio('coin');
+                spawnCoins();
+                // Бонус за скорость
+                const speedBonus = Math.floor(timeLeft * 10);
+                score += 100 + speedBonus;
+                btn.classList.add('bg-teal-500', 'text-stone-900', 'border-teal-400', 'scale-105');
+                if(timeLeft > 10) document.getElementById('multiplier').classList.remove('hidden');
+            } else {
+                playAudio('wrong');
+                container.classList.add('shake');
+                if(btn) btn.classList.add('bg-red-500', 'border-red-400');
+                setTimeout(() => container.classList.remove('shake'), 500);
+            }
+
+            document.getElementById('score-badge').innerText = score;
+
+            setTimeout(() => {
+                document.getElementById('multiplier').classList.add('hidden');
+                currentQ++;
+                if (currentQ < questions.length) loadQuestion();
+                else finish();
+            }, 1500);
+        }
+
+        function finish() {
+            playAudio('win');
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>
