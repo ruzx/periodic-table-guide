@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Deep Dive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .answer-btn { transition: transform 0.1s; }
+        .answer-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-4 text-white selection:bg-teal-500 selection:text-white">
+
+    <!-- Top Bar -->
+    <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-10 bg-slate-900/90 backdrop-blur-sm border-b border-slate-800">
+        <div class="font-black text-xl tracking-tighter"><i class="fas fa-atom text-teal-400 mr-2"></i>TITANO<span class="text-slate-500">KEMI</span></div>
+        <div class="font-bold bg-slate-800 px-4 py-1 rounded-full border border-slate-700" id="score-badge">Score: 0</div>
+    </div>
+
+    <!-- MAIN GAME CONTAINER -->
+    <main class="w-full max-w-3xl relative mt-12">
+        
+        <!-- SCREEN 1: START MENU -->
+        <div id="start-screen" class="bg-slate-800 border border-slate-700 rounded-2xl p-8 md:p-12 shadow-2xl text-center">
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">Periodiska Systemet</h1>
+            <h2 class="text-xl text-teal-400 font-bold mb-6">Advanced Review</h2>
+            <p class="text-lg text-slate-400 mb-8">Based on your textbook (Titano) and handwritten notes. <br>Focus: Shells, Isotopes, Bonding, and Trends.</p>
+            
+            <button onclick="startGame()" class="bg-teal-500 hover:bg-teal-600 text-slate-900 text-xl font-bold py-4 px-12 rounded-xl shadow-[0_4px_0_rgb(13,148,136)] active:shadow-none active:translate-y-[4px] transition-all w-full md:w-auto">
+                Start Review
+            </button>
+        </div>
+
+        <!-- SCREEN 2: GAMEPLAY (Hidden by default) -->
+        <div id="game-screen" class="hidden">
+            
+            <!-- Timer Bar -->
+            <div class="bg-slate-700 h-4 rounded-full w-full mb-6 overflow-hidden relative">
+                <div id="timer-bar" class="h-full bg-teal-500 w-full transition-all duration-1000 ease-linear"></div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="bg-white text-slate-900 rounded-xl p-8 mb-6 text-center shadow-lg min-h-[160px] flex flex-col items-center justify-center">
+                <h2 id="question-text" class="text-2xl md:text-3xl font-bold mb-2">Loading...</h2>
+                <p id="question-context" class="text-slate-500 text-sm italic"></p>
+            </div>
+
+            <!-- Answer Grid (2x2) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container">
+                <!-- Buttons injected via JS -->
+            </div>
+
+            <!-- Status Bar -->
+            <div id="status-bar" class="mt-6 h-12 flex items-center justify-center">
+                <div id="feedback-text" class="text-2xl font-black uppercase tracking-widest"></div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: RESULTS (Hidden by default) -->
+        <div id="result-screen" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-12 shadow-2xl text-center">
+            <div class="mb-6 text-6xl text-yellow-400 animate-bounce"><i class="fas fa-certificate"></i></div>
+            <h2 class="text-4xl font-black text-white mb-2">Test Ready?</h2>
+            <p class="text-xl text-slate-400 mb-8">You scored <span id="final-score" class="font-bold text-teal-400">0</span> out of <span id="total-qs">0</span></p>
+            
+            <div class="flex flex-col gap-3 md:flex-row justify-center">
+                <button onclick="location.reload()" class="bg-teal-500 hover:bg-teal-600 text-slate-900 font-bold py-3 px-8 rounded-lg">Try Again</button>
+                <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg">Back Home</a>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- QUIZ DATA BASED ON KEMI.PDF ---
+        const questions = [
+            { 
+                q: "According to Rutherford's model (Page 4), what occupies the most space in an atom?", 
+                context: "History of the Atom",
+                options: ["The Nucleus", "Empty Space (Vacuum)", "Protons", "The Electron Shells"], 
+                correct: 1 
+            },
+            { 
+                q: "Based on Page 33, what is the maximum number of electrons the M-shell can hold?", 
+                context: "Electron Configurations",
+                options: ["8", "18", "32", "2"], 
+                correct: 1 
+            },
+            { 
+                q: "Why do Alkali metals (Group 1) become MORE explosive as you go down the group?", 
+                context: "Referencing your notes on Page 16",
+                options: ["They have more protons", "They are heavier", "The valence electron is further from the nucleus", "They turn into gas"], 
+                correct: 2 
+            },
+            { 
+                q: "Isotopes (like C-12 and C-14) contain the same number of protons but different numbers of:", 
+                context: "Page 48 - 'Räkna med atomer'",
+                options: ["Electrons", "Neutrons", "Shells", "Quarks"], 
+                correct: 1 
+            },
+            { 
+                q: "When Magnesium (Mg) burns in Oxygen (O2), what kind of bond is formed?", 
+                context: "Page 17 notes: Mg + O -> MgO",
+                options: ["Ionic Bond (Jonbindning)", "Molecular Bond", "Metallic Bond", "Hydrogen Bond"], 
+                correct: 0 
+            },
+            { 
+                q: "Which group is known as 'Salt Builders' and has 7 valence electrons?", 
+                context: "Page 38 - Halogens",
+                options: ["Alkali Metals", "Noble Gases", "Halogens", "Transition Metals"], 
+                correct: 2 
+            },
+            { 
+                q: "Why is the Water molecule (H2O) considered a Dipole (Polar)?", 
+                context: "Page 45 & 263 diagrams",
+                options: ["It is liquid at room temp", "Oxygen pulls electrons harder than Hydrogen", "It has 2 Hydrogens", "It conducts electricity"], 
+                correct: 1 
+            },
+            { 
+                q: "In the Periodic Table, what do all elements in the same PERIOD (row) have in common?", 
+                context: "Page 36 - 'Perioder'",
+                options: ["Same number of valence electrons", "Same atomic mass", "Same number of electron shells", "Same reactivity"], 
+                correct: 2 
+            },
+            { 
+                q: "According to Page 39, which gas is used in lightbulbs because it does NOT react?", 
+                context: "Noble Gases applications",
+                options: ["Hydrogen", "Argon", "Oxygen", "Chlorine"], 
+                correct: 1 
+            },
+            { 
+                q: "Which calculation gives you the Mass Number (Masstal) of an atom?", 
+                context: "Page 47 & 10",
+                options: ["Protons + Electrons", "Neutrons + Electrons", "Protons + Neutrons", "Atomic Number x 2"], 
+                correct: 2 
+            }
+        ];
+
+        // --- STYLING ---
+        const colors = [
+            "bg-red-500 border-red-700 hover:bg-red-400",    
+            "bg-blue-600 border-blue-800 hover:bg-blue-500",  
+            "bg-yellow-500 border-yellow-700 hover:bg-yellow-400", 
+            "bg-green-600 border-green-800 hover:bg-green-500"  
+        ];
+        const icons = ["fa-square", "fa-circle", "fa-diamond", "fa-star"];
+
+        // --- GAME STATE ---
+        let currentQ = 0;
+        let score = 0;
+        let timer;
+        let timeLeft = 20; // Increased to 20s for harder questions
+        let canAnswer = false;
+
+        // --- DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const timerBar = document.getElementById('timer-bar');
+        const optionsDiv = document.getElementById('options-container');
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 20; 
+            canAnswer = true;
+            document.getElementById('status-bar').style.visibility = 'hidden'; 
+            timerBar.style.width = "100%";
+            timerBar.classList.remove('bg-red-500');
+            timerBar.classList.add('bg-teal-500');
+
+            const q = questions[currentQ];
+            document.getElementById('question-text').textContent = q.q;
+            document.getElementById('question-context').textContent = q.context; // Show Source Context
+            
+            optionsDiv.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `answer-btn text-white text-lg font-bold p-6 rounded-lg shadow-[0_4px_0_rgba(0,0,0,0.2)] text-left flex items-center gap-3 ${colors[idx]}`;
+                btn.innerHTML = `<i class="fas ${icons[idx]} opacity-50 text-xl"></i> <span>${opt}</span>`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optionsDiv.appendChild(btn);
+            });
+
+            timer = setInterval(() => {
+                timeLeft--;
+                const percent = (timeLeft / 20) * 100;
+                timerBar.style.width = `${percent}%`;
+                
+                if(timeLeft <= 5) {
+                    timerBar.classList.remove('bg-teal-500');
+                    timerBar.classList.add('bg-red-500');
+                }
+
+                if(timeLeft <= 0) {
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(selectedIdx, btnElement) {
+            if(!canAnswer) return;
+            canAnswer = false;
+            clearInterval(timer);
+
+            const q = questions[currentQ];
+            const correctBtn = optionsDiv.children[q.correct];
+
+            Array.from(optionsDiv.children).forEach(b => b.classList.add('opacity-40'));
+
+            const statusBar = document.getElementById('status-bar');
+            const feedbackTxt = document.getElementById('feedback-text');
+            statusBar.style.visibility = 'visible';
+
+            if(selectedIdx === q.correct) {
+                score++;
+                document.getElementById('score-badge').innerText = `Score: ${score}`;
+                btnElement.classList.remove('opacity-40');
+                btnElement.classList.add('ring-4', 'ring-white');
+                feedbackTxt.textContent = "CORRECT!";
+                feedbackTxt.className = "text-2xl font-black text-teal-400 animate-pulse uppercase tracking-widest";
+            } else {
+                btnElement.classList.remove('opacity-40');
+                btnElement.classList.add('opacity-50'); 
+                correctBtn.classList.remove('opacity-40');
+                correctBtn.classList.add('ring-4', 'ring-teal-400');
+                feedbackTxt.textContent = "WRONG";
+                feedbackTxt.className = "text-2xl font-black text-red-400 uppercase tracking-widest";
+            }
+
+            setTimeout(nextQuestion, 2500); // 2.5s delay to read explanation
+        }
+
+        function timeUp() {
+            if(!canAnswer) return;
+            canAnswer = false;
+            clearInterval(timer);
+            const q = questions[currentQ];
+            
+            Array.from(optionsDiv.children).forEach(b => b.classList.add('opacity-40'));
+            optionsDiv.children[q.correct].classList.remove('opacity-40');
+            optionsDiv.children[q.correct].classList.add('ring-4', 'ring-teal-400');
+            
+            const statusBar = document.getElementById('status-bar');
+            const feedbackTxt = document.getElementById('feedback-text');
+            statusBar.style.visibility = 'visible';
+            feedbackTxt.textContent = "TIME'S UP!";
+            feedbackTxt.className = "text-2xl font-black text-yellow-400 uppercase tracking-widest";
+
+            setTimeout(nextQuestion, 2500);
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('total-qs').textContent = questions.length;
+        }
+    </script>
+</body>
+</html>
