@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Study Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="p-6 border-b border-slate-800">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="font-bold text-xl tracking-tight">Science<span class="text-blue-500">Hub</span></div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="max-w-2xl text-center space-y-8">
+            
+            <div class="space-y-4">
+                <h1 class="text-5xl font-extrabold tracking-tight text-white">
+                    Master Your <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">Science Exams</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-lg mx-auto">
+                    Interactive study guides, mnemonic hacks, and visualization tools to help you ace Chemistry.
+                </p>
+            </div>
+
+            <!-- The Link to your Subpage -->
+            <div class="grid gap-4 md:grid-cols-1 max-w-sm mx-auto">
+                <a href="periodic-table.html" class="group relative block p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/20 text-left">
+                    <div class="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                        <i class="fas fa-arrow-right text-blue-400"></i>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                        <i class="fas fa-atom text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-1">Periodic Table Guide</h3>
+                    <p class="text-sm text-slate-400">Atoms, Isotopes, and trends explained visually.</p>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="p-6 text-center text-slate-600 text-sm">
+        &copy; 2024 ScienceHub
+    </footer>
+
+</body>
+</html>
