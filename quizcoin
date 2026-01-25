@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numisma Master: The SVG Vault</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:wght@700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #1c1917; color: white; }
+        .serif { font-family: 'Playfair Display', serif; }
+        
+        /* Gold Schematic Styling */
+        .coin-svg { filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.3)); transition: all 0.5s ease; }
+        .coin-svg path, .coin-svg circle, .coin-svg rect { stroke: #fbbf24; stroke-width: 1.5; fill: none; stroke-linecap: round; }
+        .coin-svg .fill-gold { fill: rgba(245, 158, 11, 0.1); }
+        
+        .answer-btn { transition: all 0.1s; border-bottom: 4px solid rgba(0,0,0,0.3); }
+        .answer-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+        
+        @keyframes rotate-slow {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        .animate-coin { animation: rotate-slow 8s infinite linear; perspective: 1000px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Navbar -->
+    <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-50 bg-stone-900/80 backdrop-blur-md border-b border-stone-800">
+        <div class="font-black text-xl serif text-amber-500 italic flex items-center gap-2">
+            <i class="fas fa-compass"></i>
+            <span>COIN<span class="text-stone-500 font-sans not-italic uppercase text-xs tracking-widest ml-1">Archive</span></span>
+        </div>
+        <div id="score-badge" class="font-bold bg-amber-500/10 px-4 py-1 rounded-full border border-amber-500/20 text-amber-500 uppercase text-xs tracking-widest">Score: 0</div>
+    </div>
+
+    <main class="w-full max-w-2xl mt-12">
+        
+        <!-- START SCREEN -->
+        <div id="start-screen" class="bg-stone-800 border border-stone-700 rounded-[2.5rem] p-10 shadow-2xl text-center">
+            <div class="mb-8 scale-150 py-10" id="hero-logo">
+                <svg width="80" height="80" viewBox="0 0 100 100" class="mx-auto coin-svg">
+                    <circle cx="50" cy="50" r="45" class="fill-gold" />
+                    <circle cx="50" cy="50" r="35" stroke-dasharray="4 2" />
+                    <path d="M40 35 L60 35 M50 35 L50 65 M40 65 L60 65" />
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black mb-4 serif leading-tight">History in Blueprints</h1>
+            <p class="text-stone-400 mb-8 text-lg">Identify legendary coins by their unique shapes and ancient symbols.</p>
+            <button onclick="startGame()" class="bg-amber-500 hover:bg-amber-400 text-stone-900 text-xl font-black py-5 px-12 rounded-2xl shadow-[0_6px_0_rgb(180,83,9)] active:shadow-none active:translate-y-1 transition-all w-full uppercase tracking-tighter">
+                Enter the Vault
+            </button>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="hidden">
+            <div class="bg-stone-800 border border-stone-700 rounded-[2.5rem] p-6 md:p-10 shadow-2xl">
+                <!-- Coin Display -->
+                <div class="mb-8 h-64 flex flex-col items-center justify-center bg-stone-900/50 rounded-3xl border border-stone-700/50 relative overflow-hidden p-6">
+                    <div id="coin-canvas" class="w-full h-full flex items-center justify-center animate-coin">
+                        <!-- SVG Schema will be injected here -->
+                    </div>
+                    <div class="absolute bottom-4 left-0 w-full text-center">
+                        <span id="topic-label" class="text-[10px] uppercase font-black tracking-[0.3em] text-stone-500">Artifact Schematic</span>
+                    </div>
+                </div>
+
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 text-center serif italic leading-snug text-stone-100">Loading archives...</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container"></div>
+                
+                <!-- Progress -->
+                <div class="mt-8 pt-6 border-t border-stone-700 flex justify-between items-center">
+                    <div class="text-xs font-bold text-stone-500 uppercase tracking-widest" id="q-counter">Question 1 / 10</div>
+                    <div class="w-32 bg-stone-700 h-1.5 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-amber-500 transition-all duration-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="result-screen" class="hidden bg-stone-800 border border-stone-700 rounded-[2.5rem] p-12 shadow-2xl text-center">
+            <div class="text-6xl mb-6">📜</div>
+            <h2 class="text-4xl font-black mb-2 serif text-amber-500">Exploration Complete</h2>
+            <p class="text-stone-400 mb-10 text-xl font-medium">Your Numismatist Rating: <span id="final-score" class="text-white font-bold">0</span></p>
+            <button onclick="location.reload()" class="bg-amber-500 hover:bg-amber-400 text-stone-900 font-black py-4 px-10 rounded-xl transition-all uppercase tracking-widest w-full">Restart Journey</button>
+        </div>
+    </main>
+
+    <script>
+        const coinSchemas = {
+            lydia: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><path d="M20 40 C 20 20, 80 20, 85 45 C 90 70, 30 90, 20 70 Z" class="fill-gold" /><path d="M40 45 Q 50 35 60 45 Q 50 55 40 45" stroke-width="2" /><path d="M42 43 A 1 1 0 1 0 44 43" fill="currentColor"/><path d="M56 43 A 1 1 0 1 0 58 43" fill="currentColor"/></svg>`,
+            athens: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><circle cx="50" cy="50" r="45" class="fill-gold" /><path d="M40 40 L60 40 L50 70 Z" /><circle cx="43" cy="45" r="4" /><circle cx="57" cy="45" r="4" /><path d="M70 30 L75 45 M70 50 L75 65" /></svg>`,
+            china: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><circle cx="50" cy="50" r="45" class="fill-gold" /><rect x="35" y="35" width="30" height="30" rx="2" /><path d="M50 15 V30 M50 70 V85 M15 50 H30 M70 50 H85" /></svg>`,
+            taler: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><circle cx="50" cy="50" r="45" class="fill-gold" /><path d="M30 50 Q 50 20 70 50 Q 50 80 30 50" /><path d="M50 30 V70 M35 50 H65" stroke-dasharray="2 2" /></svg>`,
+            denarius: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><circle cx="50" cy="50" r="45" class="fill-gold" /><path d="M35 30 Q 25 50 35 70 M65 30 Q 75 50 65 70" /><circle cx="50" cy="45" r="15" /><path d="M40 75 L60 75" /></svg>`,
+            pieces8: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><path d="M25 25 L75 20 L85 75 L20 80 Z" class="fill-gold" /><path d="M40 30 V70 M60 30 V70" /><path d="M35 45 H65 M35 55 H65" /></svg>`,
+            eagle: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><circle cx="50" cy="50" r="45" class="fill-gold" /><path d="M30 40 L50 20 L70 40 L50 80 Z" /><path d="M20 50 H80 M50 20 V80" stroke-opacity="0.3" /></svg>`,
+            plate: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><rect x="15" y="15" width="70" height="70" rx="5" class="fill-gold" /><circle cx="25" cy="25" r="5" /><circle cx="75" cy="25" r="5" /><circle cx="25" cy="75" r="5" /><circle cx="75" cy="75" r="5" /><circle cx="50" cy="50" r="8" /></svg>`,
+            yap: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><circle cx="50" cy="50" r="45" stroke-width="4" class="fill-gold" /><circle cx="50" cy="50" r="12" /><path d="M20 50 L35 50 M65 50 L80 50" stroke-width="3" /></svg>`,
+            solidus: `<svg viewBox="0 0 100 100" class="w-40 h-40 coin-svg"><circle cx="50" cy="50" r="45" class="fill-gold" /><path d="M50 25 L60 50 L50 75 L40 50 Z" /><circle cx="50" cy="35" r="8" /><path d="M30 70 H70" /></svg>`
+        };
+
+        const questions = [
+            { q: "Identify the oldest coin from Lydia (7th century BC). It had a distinct irregular nugget shape.", schema: "lydia", options: ["Lydian Lion", "Athenian Owl", "Roman Denarius", "Golden Nomisma"], correct: 0 },
+            { q: "Behold the schematic of the famous Owl coin. In which city was it minted?", schema: "athens", options: ["Sparta", "Athens", "Thebes", "Carthage"], correct: 1 },
+            { q: "A characteristic shape with a square hole. In which country were these coins used for over 2,000 years?", schema: "china", options: ["Japan", "India", "China", "Egypt"], correct: 2 },
+            { q: "Schematic of the 'Joachimstaler'. This 16th-century coin gave its name to which modern currency?", schema: "taler", options: ["Pound", "Euro", "Dollar", "Franc"], correct: 2 },
+            { q: "This schematic shows a Denarius with a laurel wreath. Which Empire owned this currency?", schema: "denarius", options: ["Greek", "Roman", "Ottoman", "Mongol"], correct: 1 },
+            { q: "A crude 'cob' shape with two columns. These Spanish 'Pieces of Eight' were most famously used by whom?", schema: "pieces8", options: ["Vikings", "Knights", "Pirates", "Samurai"], correct: 2 },
+            { q: "A gold coin featuring a soaring eagle. Which country’s currency does this represent?", schema: "eagle", options: ["United Kingdom", "Germany", "United States", "Russia"], correct: 2 },
+            { q: "A heavy copper plate with stamps in the corners. Which country produced these coins weighing up to 19 kg?", schema: "plate", options: ["Sweden", "Canada", "Australia", "Brazil"], correct: 0 },
+            { q: "Schematic of the Rai stone money. On which island did stones 3 meters in diameter serve as currency?", schema: "yap", options: ["Easter Island", "Yap", "Crete", "Taiwan"], correct: 1 },
+            { q: "The Byzantine Golden Solidus. What nickname did it earn for remaining unchanged for centuries?", schema: "solidus", options: ["Gold Standard", "Bezant", "Eternal Coin", "Imperial Shield"], correct: 1 }
+        ];
+
+        let currentQ = 0, score = 0;
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQ];
+            document.getElementById('q-counter').innerText = `Question ${currentQ + 1} / ${questions.length}`;
+            document.getElementById('progress-bar').style.width = ((currentQ + 1) / questions.length * 100) + "%";
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('coin-canvas').innerHTML = coinSchemas[q.schema];
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.options.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = `answer-btn bg-stone-700/50 hover:bg-stone-700 border-stone-900 text-white p-5 rounded-2xl text-left font-bold flex items-center gap-4 transition-all`;
+                b.innerHTML = `<span class="text-amber-500/50 font-black">${String.fromCharCode(65 + i)}.</span> ${opt}`;
+                b.onclick = () => check(i, b);
+                container.appendChild(b);
+            });
+        }
+
+        function check(idx, btn) {
+            const q = questions[currentQ];
+            const btns = document.getElementById('options-container').children;
+            for (let b of btns) b.disabled = true;
+
+            if (idx === q.correct) {
+                score += 100;
+                btn.classList.replace('bg-stone-700/50', 'bg-emerald-600/80');
+                btn.classList.add('ring-2', 'ring-emerald-400');
+            } else {
+                btn.classList.replace('bg-stone-700/50', 'bg-red-600/80');
+                btns[q.correct].classList.add('ring-2', 'ring-amber-500', 'bg-stone-700');
+            }
+
+            document.getElementById('score-badge').innerText = `Score: ${score}`;
+
+            setTimeout(() => {
+                currentQ++;
+                if (currentQ < questions.length) loadQuestion();
+                else finish();
+            }, 1500);
+        }
+
+        function finish() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+</body>
+</html>
