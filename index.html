@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Table: Ultimate Study Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sci-pop {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: #e2e8f0;
+            border-left: 4px solid #f6ad55;
+        }
+        .mnemonic-card {
+            background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+    <!-- Hero Section -->
+    <header class="bg-blue-700 text-white py-12 px-4 shadow-lg">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl font-extrabold mb-2 tracking-tight">The Periodic Table & Atoms</h1>
+            <p class="text-blue-100 text-lg font-medium opacity-90">Exam Prep: Quick, Visual, Fact-Based.</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 space-y-12">
+
+        <!-- BLOCK 1: PASSPORT (DEFINITIONS) -->
+        <section id="definitions">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold">1</div>
+                <h2 class="text-2xl font-bold text-slate-800">Object Passport: The Atom</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Text Content -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <ul class="space-y-4">
+                        <li class="flex flex-col">
+                            <span class="font-bold text-blue-600 uppercase text-xs tracking-wider">Core Components</span>
+                            <span class="text-slate-700">
+                                <span class="font-bold">Proton (+)</span>: Positive charge, defines the element (Atomic Number).<br>
+                                <span class="font-bold">Neutron (0)</span>: No charge, adds mass (glue).<br>
+                                <span class="font-bold">Electron (-)</span>: Negative charge, orbits in shells.
+                            </span>
+                        </li>
+                        <li class="flex flex-col">
+                            <span class="font-bold text-blue-600 uppercase text-xs tracking-wider">Key Terms</span>
+                            <span class="text-slate-700">
+                                <span class="font-bold">Atomic Number (Z)</span> = Number of Protons.<br>
+                                <span class="font-bold">Mass Number (A)</span> = Protons + Neutrons.<br>
+                                <span class="font-bold">Isotope</span> = Same protons, different neutrons (e.g., C-12 vs C-14).
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Visual: Atom Model -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center relative overflow-hidden">
+                    <h3 class="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase">Interactive Schema: Lithium (Li)</h3>
+                    <svg viewBox="0 0 200 200" class="w-48 h-48 animate-spin-slow" style="animation: spin 20s linear infinite;">
+                        <defs>
+                            <radialGradient id="nucleusGrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                                <stop offset="0%" style="stop-color:rgb(255,100,100);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:rgb(200,0,0);stop-opacity:1" />
+                            </radialGradient>
+                        </defs>
+                        <!-- K Shell -->
+                        <circle cx="100" cy="100" r="50" stroke="#cbd5e1" stroke-width="1" fill="none" />
+                        <circle cx="100" cy="50" r="4" fill="#3b82f6" />
+                        <circle cx="100" cy="150" r="4" fill="#3b82f6" />
+                        
+                        <!-- L Shell -->
+                        <circle cx="100" cy="100" r="80" stroke="#cbd5e1" stroke-width="1" fill="none" />
+                        <circle cx="180" cy="100" r="4" fill="#eab308" /> <!-- Valence Electron -->
+
+                        <!-- Nucleus -->
+                        <circle cx="100" cy="100" r="15" fill="url(#nucleusGrad)" />
+                        <text x="100" y="104" text-anchor="middle" font-size="8" fill="white" font-weight="bold">3p+4n</text>
+                    </svg>
+                    <div class="mt-2 text-center text-xs text-slate-500">
+                        <span class="inline-block w-2 h-2 rounded-full bg-red-500 mr-1"></span>Nucleus
+                        <span class="inline-block w-2 h-2 rounded-full bg-blue-500 mx-1"></span>Inner Shell
+                        <span class="inline-block w-2 h-2 rounded-full bg-yellow-500 mx-1"></span>Valence e<sup>-</sup>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCI-POP BREAK 1 -->
+        <div class="sci-pop p-6 rounded-r-xl shadow-md transform hover:-translate-y-1 transition-transform">
+            <div class="flex items-start gap-4">
+                <i class="fas fa-star text-yellow-400 text-2xl mt-1"></i>
+                <div>
+                    <h4 class="font-bold uppercase tracking-wide text-sm text-yellow-400 mb-1">Sci-Pop: We are Stardust</h4>
+                    <p class="text-sm opacity-90">
+                        Hydrogen and Helium were created in the Big Bang. Every other element in your body—the Calcium in your bones, the Iron in your blood—was forged in the explosive death of stars (supernovae) billions of years ago. You are literally made of star debris.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOCK 2: PROPERTIES (THE TABLE) -->
+        <section id="properties">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold">2</div>
+                <h2 class="text-2xl font-bold text-slate-800">Structure & Properties</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Concept: Groups vs Periods -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4 text-blue-800 border-b pb-2">How to Read the Map</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-3">
+                            <div class="bg-blue-100 p-2 rounded text-blue-600"><i class="fas fa-arrows-alt-v"></i></div>
+                            <div>
+                                <span class="font-bold block">Groups (Columns)</span>
+                                <span class="text-sm text-slate-600">Elements have the <strong class="text-blue-600">same number of valence electrons</strong>. Behave like a family (similar reactions).</span>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-green-100 p-2 rounded text-green-600"><i class="fas fa-arrows-alt-h"></i></div>
+                            <div>
+                                <span class="font-bold block">Periods (Rows)</span>
+                                <span class="text-sm text-slate-600">Elements have the <strong class="text-green-600">same number of electron shells</strong>.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concept: Key Families -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-lg mb-4 text-blue-800 border-b pb-2">The "Families"</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="p-2 rounded bg-red-50 border-l-4 border-red-500">
+                            <span class="font-bold block text-red-700">Group 1: Alkali Metals</span>
+                            1 valence e<sup>-</sup>. Highly reactive. Explode in water. (Li, Na, K)
+                        </li>
+                        <li class="p-2 rounded bg-yellow-50 border-l-4 border-yellow-500">
+                            <span class="font-bold block text-yellow-700">Group 17: Halogens</span>
+                            7 valence e<sup>-</sup>. Reactive non-metals. Love to steal 1 electron. (F, Cl)
+                        </li>
+                        <li class="p-2 rounded bg-purple-50 border-l-4 border-purple-500">
+                            <span class="font-bold block text-purple-700">Group 18: Noble Gases</span>
+                            8 valence e<sup>-</sup> (Full shell). Snobs. Do not react. (He, Ne, Ar)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- BLOCK 3: FORMULAS & REACTIONS -->
+        <section id="reactions">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold">3</div>
+                <h2 class="text-2xl font-bold text-slate-800">Formulas & Bonding</h2>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-center font-bold text-lg mb-6 text-slate-700">The "Octet Rule": Everyone wants 8 electrons</h3>
+                
+                <!-- SVG Animation of Ionic Bonding -->
+                <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 my-8">
+                    <!-- Sodium -->
+                    <div class="text-center">
+                        <div class="text-sm font-bold text-slate-500 mb-2">Sodium (Na)</div>
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" stroke="#94a3b8" fill="none" stroke-dasharray="4 2"/>
+                            <circle cx="50" cy="50" r="10" fill="#cbd5e1"/>
+                            <circle cx="90" cy="50" r="5" fill="#ef4444" class="animate-bounce">
+                                <title>The extra electron</title>
+                            </circle>
+                            <text x="50" y="54" text-anchor="middle" font-size="10">2,8,1</text>
+                        </svg>
+                        <div class="text-xs text-red-500 font-bold mt-1">Gives 1 e<sup>-</sup></div>
+                    </div>
+
+                    <div class="text-3xl text-slate-400"><i class="fas fa-arrow-right"></i></div>
+
+                    <!-- Chlorine -->
+                    <div class="text-center">
+                        <div class="text-sm font-bold text-slate-500 mb-2">Chlorine (Cl)</div>
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="40" stroke="#94a3b8" fill="none"/>
+                            <circle cx="50" cy="50" r="10" fill="#cbd5e1"/>
+                            <!-- 7 electrons drawn simply -->
+                            <circle cx="50" cy="10" r="4" fill="#3b82f6"/>
+                            <circle cx="90" cy="50" r="4" fill="#3b82f6"/>
+                            <circle cx="50" cy="90" r="4" fill="#3b82f6"/>
+                            <circle cx="10" cy="50" r="4" fill="#3b82f6"/>
+                            <text x="50" y="54" text-anchor="middle" font-size="10">2,8,7</text>
+                        </svg>
+                        <div class="text-xs text-blue-500 font-bold mt-1">Takes 1 e<sup>-</sup></div>
+                    </div>
+                    
+                    <div class="text-3xl text-slate-400">=</div>
+
+                    <div class="bg-gray-100 p-4 rounded-lg border-2 border-slate-300 text-center">
+                        <span class="block font-bold text-2xl text-slate-800">NaCl</span>
+                        <span class="text-xs text-slate-500">Ionic Bond (Table Salt)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-8 bg-slate-50 p-4 rounded-lg">
+                    <div>
+                        <span class="font-bold text-blue-700 block mb-1">Ionic Bond (The Thief)</span>
+                        Metal gives electron to Non-metal. Creates charged ions (+ and -) that attract. <br>
+                        <em>Example: NaCl, MgO</em>
+                    </div>
+                    <div>
+                        <span class="font-bold text-green-700 block mb-1">Covalent Bond (The Sharer)</span>
+                        Two non-metals share electrons to fill shells.<br>
+                        <em>Example: H<sub>2</sub>O, CO<sub>2</sub></em>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCI-POP BREAK 2 -->
+        <div class="sci-pop p-6 rounded-r-xl shadow-md transform hover:-translate-y-1 transition-transform">
+            <div class="flex items-start gap-4">
+                <i class="fas fa-flask text-pink-400 text-2xl mt-1"></i>
+                <div>
+                    <h4 class="font-bold uppercase tracking-wide text-sm text-pink-400 mb-1">Sci-Pop: The Rarest Element</h4>
+                    <p class="text-sm opacity-90">
+                        <span class="font-bold text-white">Francium (Group 1)</span> is the rarest natural element. Scientists estimate there is less than <span class="font-bold text-white">30 grams</span> of it in the entire Earth's crust at any moment. If you dropped a chunk of it in water, the explosion would be catastrophic—but you can't gather enough to try!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BLOCK 4: MNEMONICS & HACKS -->
+        <section id="hacks">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="bg-blue-600 text-white w-8 h-8 flex items-center justify-center rounded-full font-bold">4</div>
+                <h2 class="text-2xl font-bold text-slate-800">Brain Hacks (Mnemonics)</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="mnemonic-card bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-2">Max Electrons</h4>
+                    <div class="text-3xl font-mono text-center text-blue-600 font-bold py-2">2n<sup>2</sup></div>
+                    <p class="text-xs text-slate-500 text-center">n = shell number.<br>Shell 1: 2(1)² = 2<br>Shell 2: 2(2)² = 8</p>
+                </div>
+
+                <div class="mnemonic-card bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-2">Period vs Group</h4>
+                    <ul class="text-sm space-y-2">
+                        <li><strong class="text-green-600">Period:</strong> Writes a sentence (Horizontal). Ends with a "period".</li>
+                        <li><strong class="text-blue-600">Group:</strong> A family tree (Vertical). Everyone looks alike (same valence).</li>
+                    </ul>
+                </div>
+
+                <div class="mnemonic-card bg-white p-5 rounded-lg shadow-sm border border-slate-200">
+                    <h4 class="font-bold text-slate-700 mb-2">Reactivity</h4>
+                    <p class="text-sm">
+                        <strong class="text-red-500">Alkali Metals:</strong> Get MORE reactive as you go <strong class="underline">DOWN</strong>.<br>
+                        (Francium is the beast).
+                    </p>
+                    <div class="mt-2 h-1 bg-gradient-to-r from-yellow-200 to-red-600 rounded"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXERCISES SECTION -->
+        <section id="exercises" class="mt-16 pt-8 border-t-2 border-slate-200">
+            <h2 class="text-3xl font-bold text-center text-slate-800 mb-8">Test Your Knowledge</h2>
+            
+            <div id="quiz-container" class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                <div class="bg-slate-800 p-4 text-white flex justify-between items-center">
+                    <span class="font-bold">Rapid Fire Quiz</span>
+                    <span id="score-display" class="bg-slate-700 px-3 py-1 rounded text-sm">Score: 0/0</span>
+                </div>
+                
+                <div class="p-8">
+                    <div id="question-text" class="text-lg font-medium text-slate-800 mb-6 min-h-[60px]">
+                        Loading Question...
+                    </div>
+                    <div id="options-container" class="space-y-3">
+                        <!-- Options injected by JS -->
+                    </div>
+                    <div id="feedback" class="mt-4 hidden p-3 rounded text-sm font-bold text-center"></div>
+                </div>
+                
+                <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-end">
+                    <button id="next-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors hidden" onclick="nextQuestion()">Next Question</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-400 py-8 text-center text-sm mt-12">
+        <p>Prepared for Chemistry Exam Review.</p>
+    </footer>
+
+    <!-- QUIZ LOGIC -->
+    <script>
+        const questions = [
+            {
+                q: "What is the maximum number of electrons in the second shell (L-shell)?",
+                options: ["2", "8", "18", "32"],
+                correct: 1,
+                explanation: "The formula is 2n². For shell 2: 2(2)² = 2(4) = 8."
+            },
+            {
+                q: "Elements in the same Group (vertical column) always have the same number of:",
+                options: ["Electron shells", "Protons", "Neutrons", "Valence electrons"],
+                correct: 3,
+                explanation: "Groups are families. They share the same number of valence electrons, which gives them similar properties."
+            },
+            {
+                q: "Which group of elements is known for being unreactive (stable)?",
+                options: ["Alkali Metals", "Halogens", "Noble Gases", "Transition Metals"],
+                correct: 2,
+                explanation: "Noble Gases (Group 18) have full outer shells, so they don't need to react with anyone."
+            },
+            {
+                q: "In an ionic bond between Sodium (Na) and Chlorine (Cl), what happens to the electron?",
+                options: ["It is shared equally", "Na takes an electron from Cl", "Na gives an electron to Cl", "They destroy the electron"],
+                correct: 2,
+                explanation: "Sodium (Metal) wants to lose 1 electron to be stable. Chlorine (Non-metal) wants to gain 1."
+            },
+            {
+                q: "If an atom has 11 protons and 12 neutrons, what is its Mass Number?",
+                options: ["11", "12", "1", "23"],
+                correct: 3,
+                explanation: "Mass Number = Protons + Neutrons (11 + 12 = 23)."
+            },
+            {
+                q: "Why do Alkali metals (Group 1) get more reactive as you go down the group?",
+                options: ["The atoms get smaller", "The outer electron is further from the nucleus and easier to lose", "They have more neutrons", "They become gases"],
+                correct: 1,
+                explanation: "As atoms get bigger, the nucleus holds the outer electron less tightly, so it's easier to give away."
+            }
+        ];
+
+        let currentQIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            const q = questions[currentQIndex];
+            document.getElementById('question-text').textContent = `${currentQIndex + 1}. ${q.q}`;
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            document.getElementById('feedback').className = "mt-4 hidden p-3 rounded text-sm font-bold text-center";
+            document.getElementById('next-btn').classList.add('hidden');
+            answered = false;
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded border border-slate-300 hover:bg-blue-50 hover:border-blue-300 transition-all";
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                container.appendChild(btn);
+            });
+            updateScore();
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (answered) return;
+            answered = true;
+            
+            const q = questions[currentQIndex];
+            const feedback = document.getElementById('feedback');
+            const allBtns = document.getElementById('options-container').children;
+
+            if (selectedIndex === q.correct) {
+                score++;
+                btnElement.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                feedback.textContent = "Correct! " + q.explanation;
+                feedback.classList.remove('hidden');
+                feedback.classList.add('bg-green-100', 'text-green-800');
+            } else {
+                btnElement.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                allBtns[q.correct].classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                feedback.textContent = "Incorrect. " + q.explanation;
+                feedback.classList.remove('hidden');
+                feedback.classList.add('bg-red-100', 'text-red-800');
+            }
+            
+            document.getElementById('next-btn').classList.remove('hidden');
+            updateScore();
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < questions.length) {
+                loadQuestion();
+            } else {
+                // End of quiz
+                document.getElementById('quiz-container').innerHTML = `
+                    <div class="text-center p-12">
+                        <div class="text-6xl text-blue-600 mb-4"><i class="fas fa-trophy"></i></div>
+                        <h3 class="text-2xl font-bold mb-2">Quiz Complete!</h3>
+                        <p class="text-lg text-slate-600">You scored ${score} out of ${questions.length}</p>
+                        <button onclick="location.reload()" class="mt-6 bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700">Try Again</button>
+                    </div>
+                `;
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score-display').textContent = `Score: ${score}/${questions.length}`;
+        }
+
+        // Init
+        loadQuestion();
+    </script>
+</body>
+</html>
