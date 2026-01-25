@@ -27,7 +27,7 @@
         <!-- SCREEN 1: START MENU -->
         <div id="start-screen" class="bg-white text-slate-800 rounded-2xl p-8 md:p-12 shadow-2xl text-center">
             <h1 class="text-4xl md:text-6xl font-black text-indigo-900 mb-4 tracking-tight">Ready to Play?</h1>
-            <p class="text-lg text-slate-500 mb-8">10 Questions. 15 Seconds per question. Can you get a perfect score?</p>
+            <p class="text-lg text-slate-500 mb-8">10 Questions. 15 Seconds per question. Auto-advance enabled.</p>
             
             <button onclick="startGame()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xl font-bold py-4 px-12 rounded-xl shadow-[0_4px_0_rgb(55,48,163)] active:shadow-none active:translate-y-[4px] transition-all w-full md:w-auto">
                 Start Quiz
@@ -52,10 +52,9 @@
                 <!-- Buttons injected via JS -->
             </div>
 
-            <!-- Status / Next Button -->
-            <div id="status-bar" class="mt-6 flex justify-between items-center hidden">
-                <div id="feedback-text" class="text-xl font-bold"></div>
-                <button onclick="nextQuestion()" class="bg-slate-200 hover:bg-white text-slate-900 font-bold py-2 px-6 rounded-lg shadow-lg">Next <i class="fas fa-arrow-right ml-1"></i></button>
+            <!-- Status Bar (Only used for feedback text now) -->
+            <div id="status-bar" class="mt-6 h-8 text-center hidden">
+                <div id="feedback-text" class="text-2xl font-black uppercase tracking-widest"></div>
             </div>
         </div>
 
@@ -76,67 +75,25 @@
     <script>
         // --- QUIZ DATA ---
         const questions = [
-            {
-                q: "What is the chemical symbol for Gold?",
-                options: ["Go", "Gd", "Au", "Ag"],
-                correct: 2 // Index 2 is 'Au'
-            },
-            {
-                q: "Which particle has a positive charge?",
-                options: ["Electron", "Proton", "Neutron", "Photon"],
-                correct: 1
-            },
-            {
-                q: "What is the atomic number of Carbon?",
-                options: ["6", "12", "14", "8"],
-                correct: 0
-            },
-            {
-                q: "Elements in Group 18 (Noble Gases) are known for being:",
-                options: ["Highly Explosive", "Radioactive", "Unreactive (Inert)", "Liquid at room temp"],
-                correct: 2
-            },
-            {
-                q: "Water (H2O) is an example of what type of bond?",
-                options: ["Ionic", "Covalent", "Metallic", "James Bond"],
-                correct: 1
-            },
-            {
-                q: "What is the center of an atom called?",
-                options: ["Core", "Nucleus", "Shell", "Orbit"],
-                correct: 1
-            },
-            {
-                q: "Which element is needed for burning (combustion)?",
-                options: ["Nitrogen", "Helium", "Hydrogen", "Oxygen"],
-                correct: 3
-            },
-            {
-                q: "The vertical columns in the Periodic Table are called:",
-                options: ["Periods", "Groups", "Lines", "Stacks"],
-                correct: 1
-            },
-            {
-                q: "What charge does an electron have?",
-                options: ["Positive", "Negative", "Neutral", "Variable"],
-                correct: 1
-            },
-            {
-                q: "Isotopes are atoms of the same element with different numbers of:",
-                options: ["Protons", "Neutrons", "Electrons", "Shells"],
-                correct: 1
-            }
+            { q: "What is the chemical symbol for Gold?", options: ["Go", "Gd", "Au", "Ag"], correct: 2 },
+            { q: "Which particle has a positive charge?", options: ["Electron", "Proton", "Neutron", "Photon"], correct: 1 },
+            { q: "What is the atomic number of Carbon?", options: ["6", "12", "14", "8"], correct: 0 },
+            { q: "Elements in Group 18 (Noble Gases) are known for being:", options: ["Highly Explosive", "Radioactive", "Unreactive (Inert)", "Liquid at room temp"], correct: 2 },
+            { q: "Water (H2O) is an example of what type of bond?", options: ["Ionic", "Covalent", "Metallic", "James Bond"], correct: 1 },
+            { q: "What is the center of an atom called?", options: ["Core", "Nucleus", "Shell", "Orbit"], correct: 1 },
+            { q: "Which element is needed for burning (combustion)?", options: ["Nitrogen", "Helium", "Hydrogen", "Oxygen"], correct: 3 },
+            { q: "The vertical columns in the Periodic Table are called:", options: ["Periods", "Groups", "Lines", "Stacks"], correct: 1 },
+            { q: "What charge does an electron have?", options: ["Positive", "Negative", "Neutral", "Variable"], correct: 1 },
+            { q: "Isotopes are atoms of the same element with different numbers of:", options: ["Protons", "Neutrons", "Electrons", "Shells"], correct: 1 }
         ];
 
-        // --- COLORS FOR BUTTONS (Kahoot Style) ---
+        // --- STYLING ---
         const colors = [
-            "bg-red-500 border-red-700 hover:bg-red-400",    // Red
-            "bg-blue-500 border-blue-700 hover:bg-blue-400",  // Blue
-            "bg-yellow-500 border-yellow-700 hover:bg-yellow-400", // Yellow
-            "bg-green-500 border-green-700 hover:bg-green-400"  // Green
+            "bg-red-500 border-red-700 hover:bg-red-400",    
+            "bg-blue-500 border-blue-700 hover:bg-blue-400",  
+            "bg-yellow-500 border-yellow-700 hover:bg-yellow-400", 
+            "bg-green-500 border-green-700 hover:bg-green-400"  
         ];
-        
-        // --- ICONS FOR BUTTONS ---
         const icons = ["fa-square", "fa-circle", "fa-diamond", "fa-star"];
 
         // --- GAME STATE ---
@@ -160,24 +117,22 @@
         }
 
         function loadQuestion() {
-            // Reset State
+            // Reset
             clearInterval(timer);
             timeLeft = 15;
             canAnswer = true;
-            document.getElementById('status-bar').classList.add('hidden');
+            document.getElementById('status-bar').classList.add('hidden'); // Hide feedback from previous
             timerBar.style.width = "100%";
             timerBar.classList.remove('bg-red-600');
             timerBar.classList.add('bg-pink-500');
 
-            // Load Data
+            // Load Content
             const q = questions[currentQ];
             document.getElementById('question-text').textContent = q.q;
             
-            // Create Buttons
             optionsDiv.innerHTML = '';
             q.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                // Apply Kahoot styling
                 btn.className = `answer-btn text-white text-lg font-bold p-6 rounded-lg shadow-[0_4px_0_rgba(0,0,0,0.2)] text-left flex items-center gap-3 ${colors[idx]}`;
                 btn.innerHTML = `<i class="fas ${icons[idx]} opacity-50 text-xl"></i> <span>${opt}</span>`;
                 btn.onclick = () => checkAnswer(idx, btn);
@@ -209,7 +164,7 @@
             const q = questions[currentQ];
             const correctBtn = optionsDiv.children[q.correct];
 
-            // Grey out all buttons
+            // Grey out all
             Array.from(optionsDiv.children).forEach(b => b.classList.add('opacity-40'));
 
             if(selectedIdx === q.correct) {
@@ -217,16 +172,19 @@
                 score++;
                 document.getElementById('score-badge').innerText = `Score: ${score}`;
                 btnElement.classList.remove('opacity-40');
-                btnElement.classList.add('ring-4', 'ring-white'); // Highlight
+                btnElement.classList.add('ring-4', 'ring-white');
                 showFeedback(true);
             } else {
                 // Wrong
                 btnElement.classList.remove('opacity-40');
-                btnElement.classList.add('opacity-50'); // Keep wrong one slightly visible
+                btnElement.classList.add('opacity-50'); 
                 correctBtn.classList.remove('opacity-40');
-                correctBtn.classList.add('ring-4', 'ring-green-400'); // Show correct
+                correctBtn.classList.add('ring-4', 'ring-green-400');
                 showFeedback(false);
             }
+
+            // AUTO NEXT: Wait 2 seconds, then go
+            setTimeout(nextQuestion, 2000);
         }
 
         function timeUp() {
@@ -234,11 +192,15 @@
             canAnswer = false;
             clearInterval(timer);
             const q = questions[currentQ];
-            // Show correct answer
+            
             Array.from(optionsDiv.children).forEach(b => b.classList.add('opacity-40'));
             optionsDiv.children[q.correct].classList.remove('opacity-40');
             optionsDiv.children[q.correct].classList.add('ring-4', 'ring-white');
+            
             showFeedback(false, "Time's Up!");
+
+            // AUTO NEXT: Wait 2.5 seconds (extra time to realize time is up)
+            setTimeout(nextQuestion, 2500);
         }
 
         function showFeedback(isCorrect, customMsg) {
@@ -248,13 +210,13 @@
             
             if(customMsg) {
                 txt.textContent = customMsg;
-                txt.className = "text-xl font-bold text-white";
+                txt.className = "text-white";
             } else if (isCorrect) {
-                txt.textContent = "Correct!";
-                txt.className = "text-xl font-bold text-green-400";
+                txt.textContent = "CORRECT!";
+                txt.className = "text-green-400 animate-pulse";
             } else {
-                txt.textContent = "Wrong!";
-                txt.className = "text-xl font-bold text-red-400";
+                txt.textContent = "WRONG";
+                txt.className = "text-red-400";
             }
         }
 
