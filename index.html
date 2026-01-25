@@ -13,47 +13,112 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
 
-    <!-- Navbar -->
     <nav class="p-6 border-b border-slate-800">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="font-bold text-xl tracking-tight">Science<span class="text-blue-500">Hub</span></div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="flex-grow flex items-center justify-center p-6">
-        <div class="max-w-2xl text-center space-y-8">
+    <main class="flex-grow flex flex-col items-center justify-center p-6">
+        <div class="max-w-4xl w-full text-center space-y-8">
             
-            <div class="space-y-4">
-                <h1 class="text-5xl font-extrabold tracking-tight text-white">
-                    Master Your <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">Science Exams</span>
-                </h1>
-                <p class="text-lg text-slate-400 max-w-lg mx-auto">
-                    Interactive study guides, mnemonic hacks, and visualization tools to help you ace Chemistry.
-                </p>
-            </div>
+            <h1 class="text-5xl font-extrabold tracking-tight text-white mb-8">
+                Study <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">Dashboard</span>
+            </h1>
 
-            <!-- The Link to your Subpage -->
-            <div class="grid gap-4 md:grid-cols-1 max-w-sm mx-auto">
-                <a href="periodic-table.html" class="group relative block p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/20 text-left">
-                    <div class="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
-                        <i class="fas fa-arrow-right text-blue-400"></i>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-4 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                        <i class="fas fa-atom text-xl"></i>
-                    </div>
-                    <h3 class="font-bold text-lg text-white mb-1">Periodic Table Guide</h3>
-                    <p class="text-sm text-slate-400">Atoms, Isotopes, and trends explained visually.</p>
-                </a>
+            <!-- This container will be filled automatically -->
+            <div id="project-grid" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
+                <!-- Loading Animation -->
+                <div class="col-span-full text-slate-500 animate-pulse">
+                    Scanning GitHub for pages...
+                </div>
             </div>
 
         </div>
     </main>
 
-    <footer class="p-6 text-center text-slate-600 text-sm">
-        &copy; 2024 ScienceHub
-    </footer>
+    <script>
+        // ================= CONFIGURATION =================
+        // CHANGE THESE TWO LINES TO MATCH YOUR GITHUB:
+        const githubUsername = "ruzx"; // e.g., "johnsmith"
+        const repoName = "periodic-table-guide";     // e.g., "periodic-table-guide"
+        // =================================================
 
+        const container = document.getElementById('project-grid');
+
+        async function loadPages() {
+            const apiUrl = `https://api.github.com/repos/${githubUsername}/${repoName}/contents/`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('Repo not found');
+                const files = await response.json();
+
+                // Clear loading text
+                container.innerHTML = '';
+
+                // Filter for HTML files, exclude index.html and 404.html
+                const htmlFiles = files.filter(file => 
+                    file.name.endsWith('.html') && 
+                    file.name !== 'index.html' && 
+                    file.name !== '404.html'
+                );
+
+                if (htmlFiles.length === 0) {
+                    container.innerHTML = '<p class="text-slate-500 col-span-full">No pages found yet.</p>';
+                    return;
+                }
+
+                htmlFiles.forEach(file => {
+                    // Make the filename look nice (remove .html, swap dashes for spaces)
+                    let displayName = file.name.replace('.html', '').replace(/-/g, ' ');
+                    // Capitalize words
+                    displayName = displayName.replace(/\b\w/g, l => l.toUpperCase());
+
+                    // Choose an icon based on filename keywords
+                    let icon = 'fa-file-code';
+                    let color = 'text-blue-400';
+                    let bgGroup = 'group-hover:bg-blue-500';
+
+                    if (file.name.includes('quiz') || file.name.includes('game')) {
+                        icon = 'fa-gamepad';
+                        color = 'text-pink-400';
+                        bgGroup = 'group-hover:bg-pink-500';
+                    } else if (file.name.includes('guide') || file.name.includes('table')) {
+                        icon = 'fa-book-open';
+                        color = 'text-teal-400';
+                        bgGroup = 'group-hover:bg-teal-500';
+                    }
+
+                    // Create the HTML Card
+                    const card = `
+                    <a href="${file.name}" class="group relative block p-6 bg-slate-800 rounded-xl border border-slate-700 hover:border-slate-500 transition-all hover:shadow-lg hover:shadow-blue-500/10 text-left">
+                        <div class="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <i class="fas fa-arrow-right ${color}"></i>
+                        </div>
+                        <div class="w-12 h-12 bg-slate-700 rounded-lg flex items-center justify-center mb-4 ${color} ${bgGroup} group-hover:text-white transition-colors">
+                            <i class="fas ${icon} text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg text-white mb-1">${displayName}</h3>
+                        <p class="text-xs text-slate-500 uppercase tracking-widest">Click to view</p>
+                    </a>
+                    `;
+
+                    container.innerHTML += card;
+                });
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `
+                    <div class="col-span-full text-red-400 bg-red-900/20 p-4 rounded-lg">
+                        Error: Could not load pages.<br>
+                        Make sure you updated the username and repo name in the code!
+                    </div>
+                `;
+            }
+        }
+
+        loadPages();
+    </script>
 </body>
 </html>
