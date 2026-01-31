@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kemi Expert Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .answer-btn { transition: transform 0.1s; }
+        .answer-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex flex-col items-center justify-center p-4 text-white selection:bg-yellow-500 selection:text-slate-900">
+
+    <!-- Top Bar -->
+    <div class="fixed top-0 left-0 w-full p-4 flex justify-between items-center z-10 bg-slate-900/90 backdrop-blur-sm border-b border-slate-800">
+        <div class="font-black text-xl tracking-tighter"><i class="fas fa-flask text-yellow-500 mr-2"></i>KEMI<span class="text-slate-500">EXPERT</span></div>
+        <div class="flex items-center gap-4">
+            <button id="mute-btn" onclick="toggleMute()" class="text-slate-500 hover:text-white transition-colors">
+                <i class="fas fa-volume-up text-xl"></i>
+            </button>
+            <div class="font-bold bg-slate-800 px-4 py-1 rounded-full border border-slate-700" id="score-badge">Poäng: 0</div>
+        </div>
+    </div>
+
+    <!-- MAIN GAME CONTAINER -->
+    <main class="w-full max-w-3xl relative mt-12">
+        
+        <!-- SCREEN 1: START MENU -->
+        <div id="start-screen" class="bg-slate-800 border border-slate-700 rounded-2xl p-8 md:p-12 shadow-2xl text-center">
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">Kemi Quiz (Nivå 2)</h1>
+            <h2 class="text-xl text-yellow-500 font-bold mb-6">Bindningar & Reaktioner</h2>
+            <p class="text-lg text-slate-400 mb-8">Testa dina kunskaper om isotoper, metaller och molekylbindningar.</p>
+            
+            <button onclick="startGame()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 text-xl font-bold py-4 px-12 rounded-xl shadow-[0_4px_0_rgb(202,138,4)] active:shadow-none active:translate-y-[4px] transition-all w-full md:w-auto">
+                Starta Quizet
+            </button>
+        </div>
+
+        <!-- SCREEN 2: GAMEPLAY -->
+        <div id="game-screen" class="hidden">
+            <!-- Timer -->
+            <div class="bg-slate-700 h-4 rounded-full w-full mb-6 overflow-hidden relative">
+                <div id="timer-bar" class="h-full bg-yellow-500 w-full transition-all duration-1000 ease-linear"></div>
+            </div>
+
+            <!-- Question -->
+            <div class="bg-white text-slate-900 rounded-xl p-8 mb-6 text-center shadow-lg min-h-[160px] flex flex-col items-center justify-center">
+                <span id="topic-badge" class="bg-slate-100 text-slate-500 text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">Ämne</span>
+                <h2 id="question-text" class="text-2xl md:text-3xl font-bold mb-2">Laddar...</h2>
+            </div>
+
+            <!-- Answers -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="options-container"></div>
+
+            <!-- Feedback -->
+            <div id="status-bar" class="mt-6 h-12 flex items-center justify-center visible invisible">
+                <div id="feedback-text" class="text-2xl font-black uppercase tracking-widest"></div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: RESULTS -->
+        <div id="result-screen" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-12 shadow-2xl text-center">
+            <div class="mb-6 text-6xl text-yellow-500 animate-bounce"><i class="fas fa-medal"></i></div>
+            <h2 class="text-4xl font-black text-white mb-2">Bra jobbat!</h2>
+            <p class="text-xl text-slate-400 mb-8">Du fick <span id="final-score" class="font-bold text-yellow-500">0</span> av <span id="total-qs">0</span></p>
+            
+            <div class="flex flex-col gap-3 md:flex-row justify-center">
+                <button onclick="location.reload()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 font-bold py-3 px-8 rounded-lg">Spela Igen</button>
+                <a href="index.html" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-8 rounded-lg">Tillbaka</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- SOUNDS ---
+        const sfx = {
+            correct: new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'),
+            wrong: new Audio('https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3'),
+            tick: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+            win: new Audio('https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3')
+        };
+        sfx.correct.volume = 0.5; sfx.wrong.volume = 0.5; sfx.tick.volume = 0.3; sfx.win.volume = 0.6;
+        let isMuted = false;
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.querySelector('#mute-btn i').className = isMuted ? "fas fa-volume-mute text-red-400 text-xl" : "fas fa-volume-up text-xl";
+            Object.values(sfx).forEach(s => s.muted = isMuted);
+        }
+
+        // --- SWEDISH QUESTIONS (Based on Kemi.pdf) ---
+        const questions = [
+            { 
+                q: "Vad kallas den bindning där elektroner rör sig fritt i ett 'gemensamt hav' mellan atomerna?", 
+                topic: "Kemisk Bindning", 
+                options: ["Jonbindning", "Metallbindning", "Molekylbindning", "Vätebindning"], 
+                correct: 1 // Metallbindning (Sid 46/264)
+            },
+            { 
+                q: "Vilken ädelgas är radioaktiv, finns i marken och kan orsaka lungcancer?", 
+                topic: "Miljö & Hälsa", 
+                options: ["Argon", "Radon", "Neon", "Krypton"], 
+                correct: 1 // Radon (Sid 50/268)
+            },
+            { 
+                q: "Ordet 'Halogen' (Grupp 17) betyder något speciellt. Vad?", 
+                topic: "Grundämnesfamiljer", 
+                options: ["Ljusbildare", "Giftig gas", "Saltbildare", "Metallätare"], 
+                correct: 2 // Saltbildare (Sid 38)
+            },
+            { 
+                q: "Väte har tre isotoper. Vad kallas den isotop som har 1 proton och 1 neutron?", 
+                topic: "Isotoper", 
+                options: ["Vanligt väte (Protium)", "Deuterium", "Tritium", "Helium"], 
+                correct: 1 // Deuterium (Sid 48/266)
+            },
+            { 
+                q: "Varför leder kranvatten ström bättre än destillerat vatten?", 
+                topic: "Ledningsförmåga", 
+                options: ["Det är varmare", "Det innehåller lösta joner (salter)", "Vattenmolekylerna är större", "Det har högre pH-värde"], 
+                correct: 1 // Anteckningar sid 7 & Bok sid 260
+            },
+            { 
+                q: "Vad händer med en Magnesiumatom (Mg) när den blir en jon?", 
+                topic: "Joner", 
+                options: ["Den tar upp 2 elektroner", "Den ger bort 1 elektron", "Den ger bort 2 elektroner", "Den delar elektroner"], 
+                correct: 2 // Mg ger bort 2 -> Mg2+ (Sid 17)
+            },
+            { 
+                q: "Vilken kemisk formel har molekylen Metan?", 
+                topic: "Organisk Kemi", 
+                options: ["CO2", "H2O", "CH4", "NaCl"], 
+                correct: 2 // CH4 (Sid 45/262)
+            },
+            { 
+                q: "Vad bildas (förutom vätgas) när en Alkalimetall reagerar med vatten?", 
+                topic: "Kemiska Reaktioner", 
+                options: ["En syra", "En basisk lösning (Hydroxid)", "Ett salt", "Ingenting"], 
+                correct: 1 // Basisk lösning/Hydroxid (Anteckningar sid 14)
+            },
+            { 
+                q: "Hur många elektroner får maximalt plats i det innersta skalet (K-skalet)?", 
+                topic: "Elektronskal", 
+                options: ["2", "8", "18", "32"], 
+                correct: 0 // 2 stycken (Sid 33)
+            },
+            { 
+                q: "Varför används gasen Argon i glödlampor?", 
+                topic: "Ädelgaser", 
+                options: ["Den lyser starkt", "Den reagerar inte med glödtråden", "Den är billigast", "Den leder ström bra"], 
+                correct: 1 // Skyddsgas (Sid 39)
+            }
+        ];
+
+        // --- GAME LOGIC ---
+        const colors = ["bg-red-500 hover:bg-red-400", "bg-blue-600 hover:bg-blue-500", "bg-yellow-600 hover:bg-yellow-500", "bg-green-600 hover:bg-green-500"];
+        const icons = ["fa-square", "fa-circle", "fa-diamond", "fa-star"];
+        
+        let currentQ = 0; let score = 0; let timer; let timeLeft = 20; let canAnswer = false;
+
+        const el = (id) => document.getElementById(id);
+
+        function startGame() {
+            sfx.tick.play().catch(()=>{}); sfx.tick.pause(); // Unlock audio
+            el('start-screen').classList.add('hidden');
+            el('game-screen').classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            clearInterval(timer); timeLeft = 20; canAnswer = true;
+            el('status-bar').style.visibility = 'hidden';
+            el('timer-bar').className = "h-full bg-yellow-500 w-full transition-all duration-1000 ease-linear";
+
+            const q = questions[currentQ];
+            el('question-text').textContent = q.q;
+            el('topic-badge').textContent = q.topic;
+            
+            el('options-container').innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `answer-btn text-white text-lg font-bold p-6 rounded-lg shadow-md text-left flex items-center gap-3 ${colors[idx]}`;
+                btn.innerHTML = `<i class="fas ${icons[idx]} opacity-50 text-xl"></i> <span>${opt}</span>`;
+                btn.onclick = () => checkAnswer(idx, btn);
+                el('options-container').appendChild(btn);
+            });
+
+            timer = setInterval(() => {
+                timeLeft--;
+                el('timer-bar').style.width = `${(timeLeft/20)*100}%`;
+                if(timeLeft <= 5) {
+                    el('timer-bar').classList.remove('bg-yellow-500');
+                    el('timer-bar').classList.add('bg-red-500');
+                    sfx.tick.currentTime = 0; sfx.tick.play();
+                }
+                if(timeLeft <= 0) timeUp();
+            }, 1000);
+        }
+
+        function checkAnswer(idx, btn) {
+            if(!canAnswer) return; canAnswer = false; clearInterval(timer);
+            const q = questions[currentQ];
+            Array.from(el('options-container').children).forEach(b => b.classList.add('opacity-40'));
+            
+            el('status-bar').style.visibility = 'visible';
+            const feedback = el('feedback-text');
+
+            if(idx === q.correct) {
+                sfx.correct.currentTime = 0; sfx.correct.play();
+                score++; el('score-badge').innerText = `Poäng: ${score}`;
+                btn.classList.remove('opacity-40'); btn.classList.add('ring-4', 'ring-white');
+                feedback.textContent = "RÄTT SVAR!"; feedback.className = "text-2xl font-black text-green-400 animate-pulse";
+            } else {
+                sfx.wrong.currentTime = 0; sfx.wrong.play();
+                btn.classList.remove('opacity-40'); btn.classList.add('opacity-50');
+                el('options-container').children[q.correct].classList.remove('opacity-40');
+                el('options-container').children[q.correct].classList.add('ring-4', 'ring-green-400');
+                feedback.textContent = "FEL SVAR"; feedback.className = "text-2xl font-black text-red-400";
+            }
+            setTimeout(nextQuestion, 2000);
+        }
+
+        function timeUp() {
+            if(!canAnswer) return; canAnswer = false; clearInterval(timer);
+            sfx.wrong.currentTime = 0; sfx.wrong.play();
+            const q = questions[currentQ];
+            Array.from(el('options-container').children).forEach(b => b.classList.add('opacity-40'));
+            el('options-container').children[q.correct].classList.remove('opacity-40');
+            el('options-container').children[q.correct].classList.add('ring-4', 'ring-green-400');
+            el('status-bar').style.visibility = 'visible';
+            el('feedback-text').textContent = "TIDEN ÄR UTE!";
+            el('feedback-text').className = "text-2xl font-black text-yellow-500";
+            setTimeout(nextQuestion, 2000);
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < questions.length) loadQuestion();
+            else endGame();
+        }
+
+        function endGame() {
+            sfx.win.currentTime = 0; sfx.win.play();
+            el('game-screen').classList.add('hidden');
+            el('result-screen').classList.remove('hidden');
+            el('final-score').textContent = score;
+            el('total-qs').textContent = questions.length;
+        }
+    </script>
+</body>
+</html>
